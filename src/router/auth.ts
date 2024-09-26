@@ -1,47 +1,20 @@
 import express from "express"
 import passport from "passport"
-import { prisma } from "../db/client"
 import tokenAuth from "../middleware/tokenAuth"
-import Joi from "joi"
 import authenticateWithState from "../middleware/authenticateWithState"
 import redirectWithState from "../middleware/redirectWithState"
+import * as authController from "../controllers/authController"
+import validateId from "../middleware/validateId"
 
 const router = express.Router()
+
 
 router.get("/", tokenAuth, (req,res) => {
     res.send(req.user ?? "Hello")
 })
 
-router.post('/login', passport.authenticate('local'), function(req, res) {
-    const user = req.user!
-    res.send({
-        user,
-        token: user.generateToken()
-    })
-});
-
-router.post('/signup', async function(req, res) {
-    const {error, value: {email, password}} = validateAuthUser(req.body)
-    if(error) return res.status(400).send(error.message)
-
-    const user = await prisma.user.findFirst({where: {email}})
-    if(user) return res.status(400).send("User exists")
-
-    const newUser = await prisma.user.create({
-        data: {
-            email,
-            password
-        }
-    })
-    const token = newUser.generateToken()
-
-    res.send({
-        user: newUser,
-        token
-    })
-});
-
-
+router.post('/login', passport.authenticate('local'), authController.login);
+router.post('/signup', authController.signup);
 
 router.get('/login/federated/google', authenticateWithState("google"));
 router.get('/oauth2/redirect/google', redirectWithState("google"))
@@ -49,22 +22,23 @@ router.get('/oauth2/redirect/google', redirectWithState("google"))
 router.get('/login/federated/twitter', authenticateWithState("twitter"));  
 router.get('/redirect/twitter', redirectWithState("twitter"));
 
-router.post('/logout', function(req, res, next) {
-    req.logout(function(err) {
-      if (err) { return next(err); }
-      res.redirect('/');
-    });
-});
+router.post('/logout', authController.logOut);
 
 
+router.get("/mfa/passkey/register_options", tokenAuth, authController.passKeyRegisterOptions)
+router.post("/mfa/passkey/register", tokenAuth, authController.passKeyRegister)
 
-function validateAuthUser(content: any){
-    const object = Joi.object({
-        email: Joi.string().email().required(),
-        password: Joi.string().min(4).required()
-    })
-    return object.validate(content)
-}
+
+router.get("/mfa/passkey/signin_options", authController.passKeySignInOptions)
+router.post("/mfa/passkey/signin", authController.passKeySignIn)
+
+
+router.get("/mfa/totp/generate", authController.mfaTOTPGenerate)
+router.post("/mfa/totp/verify", authController.mfaTOTPVerify)
+router.post("/mfa/totp/validate", tokenAuth, authController.mfaTOTPValidate)
+
+router.get("/mfa/methods", tokenAuth,authController.mfaMethods)
+router.delete("/mfa/methods/:id", validateId(), tokenAuth, authController.deleteMfaMethodById)
 
 export {
     router as default

@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -23,6 +18,9 @@ model User{
   displayName String? @map("display_name")
   createdAt DateTime @default(now()) @map("created_at")
   authProviders AuthProvider[]
+  mfaMethods MfaMethod[]
+  passKeys Passkey[]
+  isMfaEnabled Boolean @default(false) @map("is_mfa_enabled")
 
   @@map("users")
 }
@@ -38,4 +36,58 @@ model AuthProvider {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("auth_providers")
+}
+
+
+model MfaMethod{
+  id Int @id @default(autoincrement())
+  userId Int @map("user_id") 
+  user User @relation(fields: [userId], references: [id])
+  methodType MfaType @map("method_type")
+  methodData String @map("method_data")
+  isActive Boolean @map("is_active") @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  passkey Passkey? 
+
+  @@map("mfa_methods")
+  // @@unique([userId, methodType])
+}
+
+model Passkey {
+  id Int @id @default(autoincrement())
+  credentialId String @map("credential_id") @unique
+  userId Int @map("user_id") 
+  user User @relation(fields: [userId], references: [id])
+  publicKey Bytes @map("public_key")
+  credentialDeviceType String @map("credential_device_type")
+  backedUp Boolean
+  counter Int @default(0)
+  transports String[]
+  createdAt DateTime @default(now()) @map("created_at")
+  lastUsed DateTime @default(now()) @map("last_used")
+
+  mfaMethodId Int? @map("mfa_method_id") @unique
+  mfaMethod MfaMethod? @relation(fields: [mfaMethodId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  
+  @@map("passkeys")
+}
+
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt   DateTime
+
+  @@map("sessions")
+}
+
+
+
+
+enum MfaType{
+  totp
+  email
+  passkey
 }

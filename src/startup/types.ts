@@ -1,4 +1,3 @@
-import session from "express-session";
 import ProviderState from "../dtos/providerState";
 import { User as PrismaUser } from "../models/user"
 
@@ -11,6 +10,14 @@ declare global {
 
 declare module 'express-session' {
     interface SessionData {
-        state?: ProviderState
+        state?: ProviderState,
+        passkey?: {
+            registerOptions?: {
+                challenge: string
+            },
+            signinOptions?: {
+                challenge: string
+            }
+        }
     }
 }

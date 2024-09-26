@@ -13,6 +13,9 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.19.1",
+    "@quixo3/prisma-session-store": "^3.1.13",
+    "@simplewebauthn/server": "^10.0.1",
+    "base64url": "^3.0.1",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
@@ -23,6 +26,7 @@
     "google-auth-library": "^9.14.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.15",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
     "passport-http": "^0.3.0",
@@ -30,7 +34,9 @@
     "passport-http-oauth": "^0.1.3",
     "passport-local": "^1.0.0",
     "passport-twitter": "^1.0.4",
-    "prisma": "^5.19.1"
+    "prisma": "^5.19.1",
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -39,6 +45,7 @@
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.18.0",
     "@types/joi": "^17.2.3",
+    "@types/nodemailer": "^6.4.16",
     "@types/nodemon": "^1.19.6",
     "@types/passport": "^1.0.16",
     "@types/passport-google-oauth2": "^0.1.10",
@@ -46,6 +53,8 @@
     "@types/passport-http-bearer": "^1.0.41",
     "@types/passport-local": "^1.0.38",
     "@types/passport-twitter": "^1.0.40",
+    "@types/qrcode": "^1.5.5",
+    "@types/speakeasy": "^2.0.10",
     "nodemon": "^3.1.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"

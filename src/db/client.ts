@@ -6,6 +6,9 @@ const prisma = new PrismaClient({
     omit: {
         user: {
             password: true
+        },
+        mfaMethod: {
+            methodData: true
         }
     }
 }).$extends(user_ext)
